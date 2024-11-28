@@ -14,3 +14,13 @@ router.get('/', async () => {
     hello: 'world',
   }
 })
+
+router
+  .group(() => {
+    router
+      .group(() => {
+        router.resource('birthdays', () => import('#controllers/birthdays_controller'))
+      })
+      .prefix('v1')
+  })
+  .prefix('api')
