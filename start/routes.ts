@@ -20,6 +20,7 @@ router
     router
       .group(() => {
         router.resource('birthdays', () => import('#controllers/birthdays_controller'))
+        router.resource('members', () => import('#controllers/members_controller'))
       })
       .prefix('v1')
   })
