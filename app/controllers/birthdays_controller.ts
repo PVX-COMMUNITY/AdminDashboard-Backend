@@ -1,7 +1,10 @@
 import { HttpContext } from '@adonisjs/core/http'
 import Birthday from '#models/birthday'
 import Member from '#models/member'
+import { HandleErrors } from '../decorators.js'
+import { createBirthdayValidator, updateBirthdayValidator } from '#validators/birthday'
 
+@HandleErrors()
 export default class BirthdaysController {
   async index({ response }: HttpContext) {
     const birthdays = await Birthday.query().preload('member')
@@ -9,19 +12,19 @@ export default class BirthdaysController {
   }
 
   async store({ request, response }: HttpContext) {
-    const data = request.only(['memberjid', 'name', 'username', 'date', 'month', 'year', 'place'])
+    const payload = await createBirthdayValidator.validate(request.all())
 
-    const bday = await Birthday.query().where('memberjid', data.memberjid).first()
+    const bday = await Birthday.query().where('memberjid', payload.memberjid).first()
     if (bday) {
       return response.status(400).json({ message: 'Birthday already exists for this member' })
     }
 
-    const member = await Member.find(data.memberjid)
+    const member = await Member.find(payload.memberjid)
     if (!member) {
-      return response.status(400).json({ message: 'Member not found' })
+      return response.status(404).json({ message: 'Member not found' })
     }
 
-    const birthday = await Birthday.create(data)
+    const birthday = await Birthday.create(payload)
     await birthday.refresh()
     await birthday.load('member')
 
@@ -36,11 +39,11 @@ export default class BirthdaysController {
   }
 
   async update({ params, request, response }: HttpContext) {
+    const payload = await updateBirthdayValidator.validate(request.all())
+
     const birthday = await Birthday.findOrFail(params.memberjid)
 
-    const data = request.only(['name', 'username', 'date', 'month', 'year', 'place'])
-
-    birthday.merge(data)
+    birthday.merge(payload)
     await birthday.save()
     await birthday.load('member')
 
