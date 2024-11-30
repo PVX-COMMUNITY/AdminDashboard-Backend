@@ -1,6 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Member from '#models/member'
+import { createMemberValidator, updateMemberValidator } from '#validators/member'
+import { HandleErrors } from '../decorators.js'
 
+@HandleErrors()
 export default class MembersController {
   async index({ response }: HttpContext) {
     const members = await Member.all()
@@ -8,12 +11,8 @@ export default class MembersController {
   }
 
   async store({ request, response }: HttpContext) {
-    const data = request.only(['name', 'role', 'memberjid'])
-    const badges = request.input('badges') || []
-    const member = await Member.create({
-      ...data,
-      badges,
-    })
+    const payload = await createMemberValidator.validate(request.all())
+    const member = await Member.create(payload)
     return response.json(member)
   }
 
@@ -23,9 +22,9 @@ export default class MembersController {
   }
 
   async update({ params, request, response }: HttpContext) {
+    const payload = await updateMemberValidator.validate(request.all())
     const member = await Member.findOrFail(params.id)
-    const data = request.only(['name'])
-    await member.merge(data).save()
+    await member.merge(payload).save()
     return response.json(member)
   }
 
