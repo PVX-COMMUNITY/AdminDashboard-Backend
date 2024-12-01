@@ -10,7 +10,7 @@ export function handleErrors() {
         const response = context?.response
 
         if (!response) {
-          throw error
+          return response.status(500).json({ message: 'Internal server error' })
         }
 
         if (error.code === 'E_ROW_NOT_FOUND') {
@@ -21,7 +21,7 @@ export function handleErrors() {
           return response.badRequest(error.messages)
         }
 
-        throw error
+        return response.status(500).json({ message: 'Internal server error' })
       }
     }
 
@@ -48,7 +48,7 @@ export function HandleErrors() {
           const response = context?.response
 
           if (!response) {
-            throw error
+            return response.status(500).json({ message: 'Internal server error' })
           }
 
           if (error.code === 'E_ROW_NOT_FOUND') {
@@ -59,7 +59,7 @@ export function HandleErrors() {
             return response.badRequest(error.messages)
           }
 
-          throw error
+          return response.status(500).json({ message: 'Internal server error' })
         }
       }
 

@@ -2,12 +2,15 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Member from '#models/member'
 import { createMemberValidator, updateMemberValidator } from '#validators/member'
 import { HandleErrors } from '../decorators.js'
+import Pagination from '../helpers/pagination.js'
+import MemberSerializer from '#serializers/member_serializer'
 
 @HandleErrors()
 export default class MembersController {
-  async index({ response }: HttpContext) {
-    const members = await Member.all()
-    return response.json(members)
+  async index({ response, request }: HttpContext) {
+    const pagination = new Pagination(Member, request, ['name', 'memberjid'])
+    const data = await pagination.serialize(MemberSerializer)
+    return response.json(data)
   }
 
   async store({ request, response }: HttpContext) {
@@ -18,7 +21,8 @@ export default class MembersController {
 
   async show({ params, response }: HttpContext) {
     const member = await Member.findOrFail(params.id)
-    return response.json(member)
+    const serialized = await new MemberSerializer(member).toJSON()
+    return response.json(serialized)
   }
 
   async update({ params, request, response }: HttpContext) {
