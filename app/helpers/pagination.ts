@@ -5,10 +5,12 @@ import BaseSerializer from '#serializers/base_serializer'
 export class Pagination<T extends LucidModel> {
   protected model: T
   protected request: HttpContext['request']
+  protected search: string[]
 
-  constructor(model: T, request: HttpContext['request']) {
+  constructor(model: T, request: HttpContext['request'], search: string[] = []) {
     this.model = model
     this.request = request
+    this.search = search
   }
 
   async serialize<M extends LucidRow>(Serializer: typeof BaseSerializer<M>) {
@@ -29,7 +31,25 @@ export class Pagination<T extends LucidModel> {
     const query = this.model.query()
     const page = this.request.input('page', 1)
     const limit = this.request.input('limit', 10)
-    return await query.paginate(page, limit)
+    const search = this.request.input('search', '')
+
+    return await query
+      .where((qur) => {
+        if (search) {
+          const searchQuery = search.toLowerCase()
+          qur.where((subQuery) => {
+            this.search.forEach((field, index) => {
+              if (index === 0) {
+                subQuery.whereRaw(`LOWER(CAST(${field} AS TEXT)) LIKE ?`, [`%${searchQuery}%`])
+              } else {
+                subQuery.orWhereRaw(`LOWER(CAST(${field} AS TEXT)) LIKE ?`, [`%${searchQuery}%`])
+              }
+            })
+          })
+        }
+        return qur
+      })
+      .paginate(page, limit)
   }
 }
 

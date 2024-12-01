@@ -9,7 +9,7 @@ import BirthdaySerializer from '#serializers/birthday_serializer'
 @HandleErrors()
 export default class BirthdaysController {
   async index({ request, response }: HttpContext) {
-    const pagination = new Pagination(Birthday, request)
+    const pagination = new Pagination(Birthday, request, ['date', 'month', 'year'])
     const birthdays = await pagination.serialize(BirthdaySerializer)
     return response.json(birthdays)
   }

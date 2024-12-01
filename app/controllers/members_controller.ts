@@ -8,7 +8,8 @@ import MemberSerializer from '#serializers/member_serializer'
 @HandleErrors()
 export default class MembersController {
   async index({ response, request }: HttpContext) {
-    const data = await new Pagination(Member, request).serialize(MemberSerializer)
+    const pagination = new Pagination(Member, request, ['name', 'memberjid'])
+    const data = await pagination.serialize(MemberSerializer)
     return response.json(data)
   }
 

@@ -9,7 +9,7 @@ import PvxGroupSerializer from '#serializers/pvx_group_serializer'
 @HandleErrors()
 export default class PvxGroupsController {
   async index({ request, response }: HttpContext) {
-    const pagination = new Pagination(PvxGroup, request)
+    const pagination = new Pagination(PvxGroup, request, ['groupjid', 'gname'])
     const pvxGroups = await pagination.serialize(PvxGroupSerializer)
     return response.json(pvxGroups)
   }

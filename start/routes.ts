@@ -22,6 +22,7 @@ router
         router.resource('birthdays', () => import('#controllers/birthdays_controller'))
         router.resource('members', () => import('#controllers/members_controller'))
         router.resource('groups', () => import('#controllers/pvx_groups_controller'))
+        router.resource('blacklists', () => import('#controllers/blacklists_controller'))
       })
       .prefix('v1')
   })
