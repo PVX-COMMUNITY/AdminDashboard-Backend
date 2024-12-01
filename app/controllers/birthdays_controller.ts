@@ -3,11 +3,14 @@ import Birthday from '#models/birthday'
 import Member from '#models/member'
 import { HandleErrors } from '../decorators.js'
 import { createBirthdayValidator, updateBirthdayValidator } from '#validators/birthday'
+import Pagination from '../helpers/pagination.js'
+import BirthdaySerializer from '#serializers/birthday_serializer'
 
 @HandleErrors()
 export default class BirthdaysController {
-  async index({ response }: HttpContext) {
-    const birthdays = await Birthday.query().preload('member')
+  async index({ request, response }: HttpContext) {
+    const pagination = new Pagination(Birthday, request)
+    const birthdays = await pagination.serialize(BirthdaySerializer)
     return response.json(birthdays)
   }
 
