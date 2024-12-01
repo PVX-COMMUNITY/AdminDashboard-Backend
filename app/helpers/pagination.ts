@@ -49,6 +49,7 @@ export class Pagination<T extends LucidModel> {
         }
         return qur
       })
+      .orderBy('created_at', 'desc')
       .paginate(page, limit)
   }
 }
